@@ -1,14 +1,16 @@
+name: mlops-monitoring
+
 services:
 
   api:
-    build: ./fastapi_app
-    container_name: api
+    build: ./fastapi-app
+    container_name: mlops_api
     ports:
       - "${FASTAPI_PORT}:8000"
     volumes:
-      - ./logs:/logs
+      - mlops_logs:/logs
     networks:
-      - app_network
+      - mlops_network
     deploy:
       resources:
         limits:
@@ -16,14 +18,14 @@ services:
           cpus: "0.50"
 
   streamlit:
-    build: ./streamlit_app
-    container_name: streamlit
+    build: ./streamlit-app
+    container_name: mlops_streamlit
     ports:
       - "${STREAMLIT_PORT}:8501"
     volumes:
-      - ./logs:/logs
+      - mlops_logs:/logs
     networks:
-      - app_network
+      - mlops_network
     deploy:
       resources:
         limits:
@@ -32,13 +34,13 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus
+    container_name: mlops_prometheus
     ports:
       - "${PROMETHEUS_PORT}:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - mlops_prometheus_config:/etc/prometheus/prometheus.yml
     networks:
-      - app_network
+      - mlops_network
     deploy:
       resources:
         limits:
@@ -47,29 +49,38 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana
+    container_name: mlops_grafana
     ports:
       - "${GRAFANA_PORT}:3000"
     volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
+      - mlops_grafana_provisioning:/etc/grafana/provisioning
     networks:
-      - app_network
+      - mlops_network
     deploy:
       resources:
         limits:
           memory: 256M
           cpus: "0.25"
 
-  node-exporter:
+  node_exporter:
     image: prom/node-exporter:latest
-    container_name: node-exporter
+    container_name: node_exporter
     networks:
-      - app_network
+      - mlops_network
     deploy:
       resources:
         limits:
           memory: 64M
           cpus: "0.10"
 
+volumes:
+  mlops_logs:
+    name: mlops_logs
+  mlops_prometheus_config:
+    name: mlops_prometheus_config
+  mlops_grafana_provisioning:
+    name: mlops_grafana_provisioning
+
 networks:
-  app_network:
+  mlops_network:
+    name: mlops_network
