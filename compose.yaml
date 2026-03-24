@@ -54,7 +54,8 @@ services:
     ports:
       - "${GRAFANA_PORT}:3000"
     volumes:
-      - mlops_grafana_provisioning:/etc/grafana/provisioning
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - mlops_grafana_provisioning:/var/lib/grafana
     networks:
       - mlops_network
     deploy:
