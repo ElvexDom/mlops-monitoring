@@ -38,7 +38,8 @@ services:
     ports:
       - "${PROMETHEUS_PORT}:9090"
     volumes:
-      - mlops_prometheus_config:/etc/prometheus/prometheus.yml
+      - ./prometheus/:/etc/prometheus
+      - mlops_prometheus_config:/prometheus
     networks:
       - mlops_network
     deploy:
