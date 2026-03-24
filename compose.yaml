@@ -1,0 +1,75 @@
+services:
+
+  api:
+    build: ./fastapi_app
+    container_name: api
+    ports:
+      - "${FASTAPI_PORT}:8000"
+    volumes:
+      - ./logs:/logs
+    networks:
+      - app_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.50"
+
+  streamlit:
+    build: ./streamlit_app
+    container_name: streamlit
+    ports:
+      - "${STREAMLIT_PORT}:8501"
+    volumes:
+      - ./logs:/logs
+    networks:
+      - app_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.50"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - app_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.25"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - app_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.25"
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    networks:
+      - app_network
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: "0.10"
+
+networks:
+  app_network:
